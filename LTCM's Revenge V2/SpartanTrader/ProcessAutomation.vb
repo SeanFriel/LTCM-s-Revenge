@@ -66,10 +66,10 @@
                 DisplayFinancialMetrics(currentDate)
                 'AlgoHedgeAll()
             Case "Auto"
-                'DoScheduledTransactions()
+                DoScheduledTransactions()
                 CalcFinancialMetrics(currentDate)
                 DisplayFinancialMetrics(currentDate)
-                'AlgoHedgeAll()
+                AlgoHedgeAll()
         End Select
     End Sub
 

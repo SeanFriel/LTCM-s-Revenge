@@ -20,6 +20,7 @@
     Public Sub FindBestHedge()
         If familyDelta > 0 Then
             'these base score weight are arbitrary. Improve them!
+            CalcScoreForCashingDividend(0)
             CalcScoreForSellingStock(800)
             CalcScoreForSellingCall(700)
             CalcScoreForSellingShortCall(600)
@@ -27,6 +28,7 @@
             CalcScoreForBuyingPut(400)
             CalcScoreForSellingShortStock(200)
         Else  ' famdelta < 0
+            CalcScoreForCashingDividend(0)
             CalcScoreForSellingPut(800)
             CalcScoreForBuyingBackCall(600)
             CalcScoreForBuyingBackStock(500)
@@ -74,7 +76,7 @@
     End Function
 
     Public Function TooCloseToMaxMargins() As Boolean
-        If ((maxMargins - margin) < 5000000) Then   ' Arbitrary threshold
+        If ((maxMargins - margin) < 500000) Then   ' Arbitrary threshold
             Return True
         Else
             Return False
@@ -121,6 +123,45 @@
     End Function
 
     ' ------- TACTIC SCORING --------------------------------------------------------------------------------------------------
+    Public Function NumberInIP(underlier)
+        If IsInIP(underlier) Then
+            For Each myRow As DataRow In myDataSet.Tables("InitialPositionTable").Rows
+                If myRow("Symbol").Trim() = underlier Then
+                    Return myRow("Units")
+                End If
+            Next
+        Else
+            Return Nothing
+        End If
+        Return Nothing
+    End Function
+
+    Private Sub CalcScoreForCashingDividend(baseScore As Integer)
+        Dim adjust As Integer = 0
+        recCurrPos = GetCurrPositionInAP(underlier)
+
+        For Each myRow As DataRow In myDataSet.Tables("StockMarketOneDayTable").Rows
+            If myRow("DivDate").ToShortDateString = myRow("Date").ToShortDateString And myRow("Ticker").Trim() = underlier Then
+                If IsInIP(underlier) Then
+                    adjust = 10000
+                    bestTrType = "CashDiv"
+                    bestSymbol = underlier
+                    bestQty = NumberInIP(underlier)
+                    bestScore = (baseScore + adjust)
+                Else
+                    If recCurrPos > 0 Then
+                        adjust = 10000
+                        bestTrType = "CashDiv"
+                        bestSymbol = underlier
+                        bestQty = recCurrPos
+                        bestScore = (baseScore + adjust)
+                    End If
+                End If
+            End If
+        Next
+
+    End Sub
+
 
     Private Sub CalcScoreForSellingStock(baseScore As Integer)
         Dim adjust As Integer = 0
@@ -128,10 +169,26 @@
             Exit Sub   ' cannot sell if in IP - no changes to best hedge
         End If
 
+        'For Each myRow As DataRow In myDataSet.Tables("StockMarketOneDayTable").Rows
+        '    If myRow("DivDate").ToShortDateString = myRow("Date").ToShortDateString And myRow("Ticker").Trim() = underlier Then
+        '        Exit Sub
+        '    End If 'Ignore DividendArb Stocks
+        'Next
+
         recCurrPos = GetCurrPositionInAP(underlier)
         If recCurrPos <= 0 Then ' we cannot sell since we are not long
             Exit Sub
         End If
+
+        'For Each myRow As DataRow In myDataSet.Tables("StockMarketOneDayTable").Rows
+        '    If myRow("Ticker").trim() = underlier And myRow("Date") = myRow("DivDate") Then
+        '        bestTrType = "CashDiv"
+        '        bestSymbol = underlier
+        '        bestQty = hedgeQty
+        '        bestScore = (baseScore + adjust)
+        '    End If
+        'Next
+
 
         hedgeQty = CalcQtyNeededToHedge(underlier)
         If hedgeQty = 0 Then
