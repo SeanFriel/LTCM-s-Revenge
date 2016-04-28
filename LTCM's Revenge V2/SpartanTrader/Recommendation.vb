@@ -233,6 +233,9 @@
                                 hedgeQty = recCurrPos ' sell all you have
                                 adjust = -50  'because incomplete hedge
                             End If
+                            'If CAccount > (margin * 0.3) + 1000000 And TPV > TaTPV + 1000000 Then
+                            '    adjust = -100
+                            'End If '<- V5Change
                             If (baseScore + adjust) > bestScore Then
                                 bestTrType = "Sell"
                                 bestSymbol = recSymbol
@@ -264,6 +267,10 @@
                         hedgeQty = maxShort
                         adjust = -50
                     End If
+                    If CAccount > (margin * 0.3) + 1000000 Then
+                        hedgeQty = maxBuy
+                        adjust = -300
+                    End If '<-V5Change
                     If hedgeQty > 0 And (baseScore + adjust) > bestScore Then
                         bestTrType = "SellShort"
                         bestSymbol = recSymbol
@@ -330,6 +337,7 @@
                     If maxBuy < hedgeQty Then
                         hedgeQty = maxBuy
                         adjust = -50
+
                     End If
                     If hedgeQty > 0 And (baseScore + adjust) > bestScore Then
                         bestTrType = "Buy"
@@ -356,6 +364,10 @@
                     hedgeQty = maxShort
                     adjust = -50
                 End If
+                If CAccount > (margin * 0.3) + 1000000 Then
+                    hedgeQty = maxBuy
+                    adjust = -300
+                End If '<-V5Change
                 If hedgeQty > 0 And (baseScore + adjust) > bestScore Then
                     bestTrType = "SellShort"
                     bestSymbol = underlier
@@ -378,6 +390,9 @@
                     recCurrPos = GetCurrPositionInAP(recSymbol)
                     If recCurrPos > 0 Then
                         hedgeQty = CalcQtyNeededToHedge(recSymbol)
+                        'If CAccount > (margin * 0.3) + 1000000 And TPV > TaTPV + 1000000 Then
+                        '    adjust = -100
+                        'End If '<- V5Change
                         If recCurrPos < hedgeQty Then
                             hedgeQty = recCurrPos
                             adjust = -50
@@ -412,6 +427,10 @@
                         hedgeQty = maxShort
                         adjust = -50
                     End If
+                    If CAccount > (margin * 0.3) + 1000000 Then
+                        hedgeQty = maxBuy
+                        adjust = -100
+                    End If '<-V5Change
                     If hedgeQty > 0 And (baseScore + adjust) > bestScore Then
                         bestTrType = "SellShort"
                         bestSymbol = recSymbol
@@ -539,7 +558,7 @@
             bestTrType = "Buy"
             bestSymbol = underlier
             bestQty = hedgeQty
-            bestScore = baseScore
+            bestScore = baseScore + adjust
         End If
     End Sub
 

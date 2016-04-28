@@ -18,9 +18,18 @@
     End Sub
 
     Public Sub AlgoHedgeAll()
-        For i As Integer = 0 To 11
-            AlgoHedge(i)
-        Next
+        AlgoHedge(8) 'LNKD (114%)
+        AlgoHedge(6) 'FIT(88%)
+        AlgoHedge(3) 'COP (58%)
+        AlgoHedge(5) 'DB(55%)
+        AlgoHedge(1) 'BABA (35%)
+        AlgoHedge(9) 'NKE (31%)
+        AlgoHedge(2) 'BLK (30%)
+        AlgoHedge(0) 'AAPL (21%)
+        AlgoHedge(11) 'XOM (20%)
+        AlgoHedge(4) 'COST (19%)
+        AlgoHedge(10) 'WMT (16%)
+        AlgoHedge(7) 'HSY (15%)
     End Sub
 
     Public Sub AlgoHedge(i As Integer)
@@ -108,6 +117,7 @@
             tempSym = myDataSet.Tables("TickerTable").Rows(i)("Ticker")
             tempSym = tempSym.Trim()
             RecArray(i).underlier = tempSym
+
             Globals.Dashboard.UnderlierRange.Cells(i + 1, 1).Value = "[" + i.ToString() + "]   " + tempSym
 
             RecArray(i).vol = GetVol(tempSym)  ' you need to set your own vols

@@ -155,29 +155,29 @@
     Public Function GetVol(symbol As String) As Double
         Select Case symbol
             Case "AAPL"
-                Return 0.2758
+                Return 0.205683
             Case "BABA"
-                Return 0.3472
+                Return 0.345512
             Case "BLK"
-                Return 0.3027
+                Return 0.301195
             Case "COP"
-                Return 0.3768
+                Return 0.5281
             Case "COST"
-                Return 0.2668
+                Return 0.186249
             Case "DB"
-                Return 0.5605
+                Return 0.547739
             Case "FIT"
-                Return 0.6873
+                Return 0.883353
             Case "HSY"
-                Return 0.2127
+                Return 0.152654
             Case "LNKD"
-                Return 0.3481
+                Return 1.142
             Case "NKE"
-                Return 0.3148
+                Return 0.308082
             Case "WMT"
-                Return 0.2161
+                Return 0.15922
             Case "XOM"
-                Return 0.2624
+                Return 0.204368
             Case Else
                 Return 0.25
         End Select

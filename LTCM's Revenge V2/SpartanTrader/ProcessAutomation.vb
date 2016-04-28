@@ -70,7 +70,7 @@
             Case "Auto"
 
                 CalcFinancialMetrics(currentDate)
-                'DoScheduledTransactions()
+                DoScheduledTransactions()
                 DisplayFinancialMetrics(currentDate)
                 AlgoHedgeAll()
         End Select
