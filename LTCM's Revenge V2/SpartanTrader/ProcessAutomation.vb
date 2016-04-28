@@ -124,6 +124,10 @@
             NeedMoreCapital = False
         End If
 
+        If margin > maxMargins Or margin * 0.3 >= CAccount Then
+            MarginTripped = True
+        End If
+
         TE = TPV - TaTPV
         If TE > 0 Then TE = TE / 4  'If a gain then...
         TEpercent = TE / TaTPV

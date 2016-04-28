@@ -10,6 +10,19 @@
     Public CurrentTotalValue As Double = 0
     Public ExcessValue As Double = 0
 
+    Public Function NumberInIP(underlier)
+        If IsInIP(underlier) Then
+            For Each myRow As DataRow In myDataSet.Tables("InitialPositionTable").Rows
+                If myRow("Symbol").Trim() = underlier Then
+                    Return myRow("Units")
+                End If
+            Next
+        Else
+            Return Nothing
+        End If
+        Return Nothing
+    End Function
+
     'Public Function IstheArbLegal(underlier)
     '    If IsInIP(underlier) = True Then
     '        If NumberInIP(underlier) < 0 Then
@@ -27,10 +40,10 @@
         Globals.Dashboard.ExecuteStockTransactionBtn.Enabled = False
 
 
-        If NeedMoreCapital = True Then
+        If NeedMoreCapital = True And MarginTripped = False Then
             'AAPL
             If currentDate.ToShortDateString = "5/11/2016" Or currentDate.ToShortDateString = "8/10/2016" Then
-                ArbNumberOfOptions = Math.Min((100000 / GetAsk("AAPL_COCTB", currentDate)), (ExcessMargin - 1000000) / GetAsk("AAPL_COCTB", currentDate))
+                ArbNumberOfOptions = Math.Min((100000 / GetAsk("AAPL_COCTB", currentDate)), Math.Abs((ExcessMargin - 1000000) / GetAsk("AAPL_COCTB", currentDate)))
                 ExecuteAlgoTransaction("SellShort", ArbNumberOfOptions, "AAPL_COCTB")
                 ArbNumberOfStocks = ArbNumberOfOptions / (1 / (Math.Abs(CalcDelta("AAPL_COCTB", currentDate))))
                 ExecuteAlgoTransaction("Buy", ArbNumberOfStocks, "AAPL")
@@ -40,7 +53,7 @@
                 margin = marginAT
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "5/12/2016" Or currentDate.ToShortDateString = "8/11/2016" Then
-                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("AAPL"), "AAPL")
+                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("AAPL") + NumberInIP("AAPL"), "AAPL")
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "5/13/2016" Or currentDate.ToShortDateString = "8/12/2016" Then
                 ExecuteAlgoTransaction("Buy", ArbNumberOfOptions, "AAPL_COCTB")
@@ -50,9 +63,9 @@
 
             'BLK
             If currentDate.ToShortDateString = "6/21/2016" Or currentDate.ToShortDateString = "9/20/2016" Then
-                ArbNumberOfOptions = Math.Min((100000 / GetAsk("BLK_COCTA", currentDate)), (ExcessMargin - 1000000) / GetAsk("BLK_COCTA", currentDate))
-                ExecuteAlgoTransaction("SellShort", ArbNumberOfOptions, "BLK_COCTA")
-                ArbNumberOfStocks = ArbNumberOfOptions / (1 / (Math.Abs(CalcDelta("BLK_COCTA", currentDate))))
+                ArbNumberOfOptions = Math.Min((100000 / GetAsk("BLK_COCTB", currentDate)), Math.Abs((ExcessMargin - 1000000) / GetAsk("BLK_COCTB", currentDate)))
+                ExecuteAlgoTransaction("SellShort", ArbNumberOfOptions, "BLK_COCTB")
+                ArbNumberOfStocks = ArbNumberOfOptions / (1 / (Math.Abs(CalcDelta("BLK_COCTB", currentDate))))
                 ExecuteAlgoTransaction("Buy", ArbNumberOfStocks, "BLK")
                 ArbUnderway = True
                 lastTransactionDate = currentDate
@@ -60,17 +73,17 @@
                 margin = marginAT
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "6/22/2016" Or currentDate.ToShortDateString = "9/21/2016" Then
-                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("BLK"), "BLK")
+                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("BLK") + NumberInIP("BLK"), "BLK")
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "6/23/2016" Or currentDate.ToShortDateString = "9/22/2016" Then
-                ExecuteAlgoTransaction("Buy", ArbNumberOfOptions, "BLK_COCTA")
+                ExecuteAlgoTransaction("Buy", ArbNumberOfOptions, "BLK_COCTB")
                 ExecuteAlgoTransaction("Sell", ArbNumberOfStocks, "BLK")
                 ArbUnderway = False
             End If
 
             'HSY
             If currentDate.ToShortDateString = "6/13/2016" Or currentDate.ToShortDateString = "9/12/2016" Then
-                ArbNumberOfOptions = Math.Min((100000 / GetAsk("HSY_COCTB", currentDate)), (ExcessMargin - 1000000) / GetAsk("HSY_COCTB", currentDate))
+                ArbNumberOfOptions = Math.Min((100000 / GetAsk("HSY_COCTB", currentDate)), Math.Abs((ExcessMargin - 1000000) / GetAsk("HSY_COCTB", currentDate)))
                 ExecuteAlgoTransaction("SellShort", ArbNumberOfOptions, "HSY_COCTB")
                 ArbNumberOfStocks = ArbNumberOfOptions / (1 / (Math.Abs(CalcDelta("HSY_COCTB", currentDate))))
                 ExecuteAlgoTransaction("Buy", ArbNumberOfStocks, "HSY")
@@ -80,7 +93,7 @@
                 margin = marginAT
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "6/14/2016" Or currentDate.ToShortDateString = "9/13/2016" Then
-                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("HSY"), "HSY")
+                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("HSY") + NumberInIP("HSY"), "HSY")
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "6/15/2016" Or currentDate.ToShortDateString = "9/14/2016" Then
                 ExecuteAlgoTransaction("Buy", ArbNumberOfOptions, "HSY_COCTB")
@@ -90,9 +103,9 @@
 
             'NKE
             If currentDate.ToShortDateString = "7/1/2016" Or currentDate.ToShortDateString = "9/30/2016" Then
-                ArbNumberOfOptions = Math.Min((100000 / GetAsk("NKE_COCTA", currentDate)), (ExcessMargin - 1000000) / GetAsk("NKE_COCTA", currentDate))
-                ExecuteAlgoTransaction("SellShort", ArbNumberOfOptions, "NKE_COCTA")
-                ArbNumberOfStocks = ArbNumberOfOptions / (1 / (Math.Abs(CalcDelta("NKE_COCTA", currentDate))))
+                ArbNumberOfOptions = Math.Min((100000 / GetAsk("NKE_COCTB", currentDate)), Math.Abs((ExcessMargin - 1000000) / GetAsk("NKE_COCTB", currentDate)))
+                ExecuteAlgoTransaction("SellShort", ArbNumberOfOptions, "NKE_COCTB")
+                ArbNumberOfStocks = ArbNumberOfOptions / (1 / (Math.Abs(CalcDelta("NKE_COCTB", currentDate))))
                 ExecuteAlgoTransaction("Buy", ArbNumberOfStocks, "NKE")
                 ArbUnderway = True
                 lastTransactionDate = currentDate
@@ -100,19 +113,19 @@
                 margin = marginAT
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "7/4/2016" Or currentDate.ToShortDateString = "10/3/2016" Then
-                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("NKE"), "NKE")
+                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("NKE") + NumberInIP("NKE"), "NKE")
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "7/5/2016" Or currentDate.ToShortDateString = "10/4/2016" Then
-                ExecuteAlgoTransaction("Buy", ArbNumberOfOptions, "NKE_COCTA")
+                ExecuteAlgoTransaction("Buy", ArbNumberOfOptions, "NKE_COCTB")
                 ExecuteAlgoTransaction("Sell", ArbNumberOfStocks, "NKE")
                 ArbUnderway = False
             End If
 
             'WMT
             If currentDate.ToShortDateString = "6/3/2016" Or currentDate.ToShortDateString = "9/2/2016" Then
-                ArbNumberOfOptions = Math.Min((100000 / GetAsk("WMT_COCTA", currentDate)), (ExcessMargin - 1000000) / GetAsk("WMT_COCTA", currentDate))
-                ExecuteAlgoTransaction("SellShort", ArbNumberOfOptions, "WMT_COCTA")
-                ArbNumberOfStocks = ArbNumberOfOptions / (1 / (Math.Abs(CalcDelta("WMT_COCTA", currentDate))))
+                ArbNumberOfOptions = Math.Min((100000 / GetAsk("WMT_COCTB", currentDate)), Math.Abs((ExcessMargin - 1000000) / GetAsk("WMT_COCTB", currentDate)))
+                ExecuteAlgoTransaction("SellShort", ArbNumberOfOptions, "WMT_COCTB")
+                ArbNumberOfStocks = ArbNumberOfOptions / (1 / (Math.Abs(CalcDelta("WMT_COCTB", currentDate))))
                 ExecuteAlgoTransaction("Buy", ArbNumberOfStocks, "WMT")
                 ArbUnderway = True
                 lastTransactionDate = currentDate
@@ -120,19 +133,19 @@
                 margin = marginAT
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "6/6/2016" Or currentDate.ToShortDateString = "9/5/2016" Then
-                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("WMT"), "WMT")
+                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("WMT") + NumberInIP("WMT"), "WMT")
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "6/7/2016" Or currentDate.ToShortDateString = "9/6/2016" Then
-                ExecuteAlgoTransaction("Buy", ArbNumberOfOptions, "WMT_COCTA")
+                ExecuteAlgoTransaction("Buy", ArbNumberOfOptions, "WMT_COCTB")
                 ExecuteAlgoTransaction("Sell", ArbNumberOfStocks, "WMT")
                 ArbUnderway = False
             End If
 
             'XOM
             If currentDate.ToShortDateString = "6/8/2016" Or currentDate.ToShortDateString = "9/7/2016" Then
-                ArbNumberOfOptions = Math.Min((100000 / GetAsk("XOM_COCTA", currentDate)), (ExcessMargin - 1000000) / GetAsk("XOM_COCTA", currentDate))
-                ExecuteAlgoTransaction("SellShort", ArbNumberOfOptions, "XOM_COCTA")
-                ArbNumberOfStocks = ArbNumberOfOptions / (1 / (Math.Abs(CalcDelta("XOM_COCTA", currentDate))))
+                ArbNumberOfOptions = Math.Min((100000 / GetAsk("XOM_COCTB", currentDate)), Math.Abs((ExcessMargin - 1000000) / GetAsk("XOM_COCTB", currentDate)))
+                ExecuteAlgoTransaction("SellShort", ArbNumberOfOptions, "XOM_COCTB")
+                ArbNumberOfStocks = ArbNumberOfOptions / (1 / (Math.Abs(CalcDelta("XOM_COCTB", currentDate))))
                 ExecuteAlgoTransaction("Buy", ArbNumberOfStocks, "XOM")
                 ArbUnderway = True
                 lastTransactionDate = currentDate
@@ -140,10 +153,10 @@
                 margin = marginAT
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "6/9/2016" Or currentDate.ToShortDateString = "9/8/2016" Then
-                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("XOM"), "XOM")
+                ExecuteAlgoTransaction("CashDiv", GetCurrPositionInAP("XOM") + NumberInIP("XOM"), "XOM")
             End If
             If ArbUnderway = True And currentDate.ToShortDateString = "6/10/2016" Or currentDate.ToShortDateString = "9/9/2016" Then
-                ExecuteAlgoTransaction("Buy", ArbNumberOfOptions, "XOM_COCTA")
+                ExecuteAlgoTransaction("Buy", ArbNumberOfOptions, "XOM_COCTB")
                 ExecuteAlgoTransaction("Sell", ArbNumberOfStocks, "XOM")
                 ArbUnderway = False
             End If
@@ -192,7 +205,7 @@
 
         End If
 
-            Globals.Dashboard.ExecuteOptionTransactionBtn.Enabled = True
+        Globals.Dashboard.ExecuteOptionTransactionBtn.Enabled = True
         Globals.Dashboard.ExecuteStockTransactionBtn.Enabled = True
     End Sub
 

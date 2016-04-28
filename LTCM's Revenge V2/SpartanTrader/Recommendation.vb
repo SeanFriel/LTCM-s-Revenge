@@ -45,10 +45,14 @@
         ' here you decide whether you need to hedge this family
         ' this is just an example with an arbitrary threshold  $5000 IS VERY TIGHT
         If Math.Abs(familyDelta) < 5000 Then
-            Return False
-        Else
+            If Math.Abs(familyGamma) < 5000 Then
+                Return False
+            Else
+                Return True
+            End If
             Return True
         End If
+        Return True
     End Function
 
     Public Sub ResetRecommendation()
@@ -91,9 +95,14 @@
         delta = CalcDelta(sym, currentDate)
         gamma = CalcGamma(sym, currentDate)
 
-        If Math.Abs(delta) < 0.05 And Math.Abs(gamma) < 0.5 Then
-            '  arbitrary threshold!
-            Return 0
+        If Math.Abs(delta) < 0.05 Then
+            If Math.Abs(gamma) < 0.05 Then
+                '  arbitrary threshold!
+                Return 0
+            ElseIf Math.Abs(gamma) >= 0.05 Then
+                q = (FamilyGammaTarget - familyGamma) / gamma
+                Return Math.Abs(Math.Round(q))
+            End If
         End If
         ' can change familydeltaTarget if you want to hedge to non-zero deltas
         q = (FamilyDeltaTarget - familyDelta) / delta

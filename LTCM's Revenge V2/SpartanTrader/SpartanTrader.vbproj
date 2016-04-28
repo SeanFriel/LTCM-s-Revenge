@@ -122,6 +122,7 @@
     <Compile Include="BlackScholes.vb" />
     <Compile Include="DataSetUtility.vb" />
     <Compile Include="DBUtilities.vb" />
+    <Compile Include="DeltaDollarCalculations.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="Dashboard.Designer.vb">
       <DependentUpon>Dashboard.Designer.xml</DependentUpon>
