@@ -1,6 +1,8 @@
 ﻿Module stGlobals
     Public ArbYesterday As Boolean = False
+    Public ExcessMargin As Double = 0
 
+    Public NeedMoreCapital As Boolean = False
 
     Public teamID As String = "16"
     Public portfolioTableName As String = "PortfolioTeam" + teamID

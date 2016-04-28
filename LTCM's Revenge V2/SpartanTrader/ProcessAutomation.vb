@@ -57,17 +57,20 @@
             Case "Manual"
                 'nothing at this point
             Case "Synch"
-                'DoScheduledTransactions()
+
                 CalcFinancialMetrics(currentDate)
+                'DoScheduledTransactions()
                 DisplayFinancialMetrics(currentDate)
             Case "Simulation"
-                DoScheduledTransactions()
+
                 CalcFinancialMetrics(currentDate)
+                DoScheduledTransactions()
                 DisplayFinancialMetrics(currentDate)
-                'AlgoHedgeAll()
+                AlgoHedgeAll()
             Case "Auto"
-                DoScheduledTransactions()
+
                 CalcFinancialMetrics(currentDate)
+                'DoScheduledTransactions()
                 DisplayFinancialMetrics(currentDate)
                 AlgoHedgeAll()
         End Select
@@ -114,12 +117,19 @@
         AP = CalcAPValue(targetDate)
         TPV = IP + AP + CAccount
         TaTPV = CalcTaTPV(targetDate)
+        If TaTPV >= TPV Then
+            NeedMoreCapital = True
+            ExcessMargin = maxMargins - margin
+        ElseIf TaTPV < TPV Then
+            NeedMoreCapital = False
+        End If
+
         TE = TPV - TaTPV
         If TE > 0 Then TE = TE / 4  'If a gain then...
         TEpercent = TE / TaTPV
         TPVNoHedge = CalcTPVNoHedge(targetDate)
         Globals.Dashboard.UpdateTPVTrackingTable(targetDate, TPV, TaTPV, TPVNoHedge)
-        'RecommendHedges()
+        RecommendHedges()
     End Sub
     Public Sub DownloadteamData()
         CAccount = DownloadCAccount()

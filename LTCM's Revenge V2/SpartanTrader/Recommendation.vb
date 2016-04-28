@@ -3,12 +3,14 @@
     Public posInArray As Integer = 0
     Public underlier As String = ""
     Public familyDelta As Double = 0
+    Public familyGamma As Double = 0
     Public recSymbol As String = ""
     Public hedgeQty As Double = 0
     Public recTrType As String = ""
     Public recScore As Double = 0
     Public vol As Double = 0
     Public delta As Double = 0
+    Public gamma As Double = 0
     Public maxShort As Double = 0
     Public maxBuy As Double = 0
     Public recCurrPos As Double = 0
@@ -16,6 +18,7 @@
     Public bestScore As Double = 0
     Public bestQty As Double = 0
     Public bestSymbol As String = ""
+    Public DeltaGammaRatio As String 
 
     Public Sub FindBestHedge()
         If familyDelta > 0 Then
@@ -54,6 +57,7 @@
         bestQty = 0
         bestScore = 0
         familyDelta = 0
+        FamilyGamma = 0
     End Sub
 
     Public Sub DisplayRecommendation()
@@ -61,13 +65,34 @@
         Globals.Dashboard.RecommendationRange.Cells(posInArray + 1, 1).Value = bestTrType
         Globals.Dashboard.SymbolRange.Cells(posInArray + 1, 1).Value = bestSymbol
         Globals.Dashboard.QtyRange.Cells(posInArray + 1, 1).Value = bestQty
+        Globals.Dashboard.FamilyGammaRange.Cells(posInArray + 1, 1).Value = familyGamma
+        Globals.Dashboard.DeltaGammaRatioRange.Cells(posInArray + 1, 1).Value = DeltaGammaRatio
     End Sub
+
+    'Public Function CalcQtyNeededToHedge(sym As String) As Integer
+    '    Dim FamilyDeltaTarget As Double = 0
+    '    Dim q As Double
+    '    delta = CalcDelta(sym, currentDate)
+
+    '    If Math.Abs(delta) < 0.05 Then
+    '        '  arbitrary threshold!
+    '        Return 0
+    '    End If
+    '    ' can change familydeltaTarget if you want to hedge to non-zero deltas
+    '    q = (FamilyDeltaTarget - familyDelta) / delta
+    '    Return Math.Abs(Math.Round(q))
+    'End Function
 
     Public Function CalcQtyNeededToHedge(sym As String) As Integer
         Dim FamilyDeltaTarget As Double = 0
+        Dim FamilyGammaTarget As Double = 0
         Dim q As Double
+
         delta = CalcDelta(sym, currentDate)
-        If Math.Abs(delta) < 0.05 Then  '  arbitrary threshold!
+        gamma = CalcGamma(sym, currentDate)
+
+        If Math.Abs(delta) < 0.05 And Math.Abs(gamma) < 0.5 Then
+            '  arbitrary threshold!
             Return 0
         End If
         ' can change familydeltaTarget if you want to hedge to non-zero deltas
@@ -141,22 +166,12 @@
         recCurrPos = GetCurrPositionInAP(underlier)
 
         For Each myRow As DataRow In myDataSet.Tables("StockMarketOneDayTable").Rows
-            If myRow("DivDate").ToShortDateString = myRow("Date").ToShortDateString And myRow("Ticker").Trim() = underlier Then
-                If IsInIP(underlier) Then
-                    adjust = 10000
-                    bestTrType = "CashDiv"
-                    bestSymbol = underlier
-                    bestQty = NumberInIP(underlier)
-                    bestScore = (baseScore + adjust)
-                Else
-                    If recCurrPos > 0 Then
-                        adjust = 10000
-                        bestTrType = "CashDiv"
-                        bestSymbol = underlier
-                        bestQty = recCurrPos
-                        bestScore = (baseScore + adjust)
-                    End If
-                End If
+            If myRow("DivDate").ToShortDateString = myRow("Date").ToShortDateString And myRow("Ticker").Trim() = underlier And myRow("Dividend") > 0 Then
+                adjust = 100000
+                bestTrType = "CashDiv"
+                bestSymbol = underlier
+                bestQty = NumberInIP(underlier)
+                bestScore = (baseScore + adjust)
             End If
         Next
 
@@ -169,26 +184,10 @@
             Exit Sub   ' cannot sell if in IP - no changes to best hedge
         End If
 
-        'For Each myRow As DataRow In myDataSet.Tables("StockMarketOneDayTable").Rows
-        '    If myRow("DivDate").ToShortDateString = myRow("Date").ToShortDateString And myRow("Ticker").Trim() = underlier Then
-        '        Exit Sub
-        '    End If 'Ignore DividendArb Stocks
-        'Next
-
         recCurrPos = GetCurrPositionInAP(underlier)
         If recCurrPos <= 0 Then ' we cannot sell since we are not long
             Exit Sub
         End If
-
-        'For Each myRow As DataRow In myDataSet.Tables("StockMarketOneDayTable").Rows
-        '    If myRow("Ticker").trim() = underlier And myRow("Date") = myRow("DivDate") Then
-        '        bestTrType = "CashDiv"
-        '        bestSymbol = underlier
-        '        bestQty = hedgeQty
-        '        bestScore = (baseScore + adjust)
-        '    End If
-        'Next
-
 
         hedgeQty = CalcQtyNeededToHedge(underlier)
         If hedgeQty = 0 Then
@@ -420,6 +419,7 @@
         If AvailableCashIsLow() Then
             Exit Sub
         End If
+
         For Each dr As DataRow In myDataSet.Tables(portfolioTableName).Rows
             recSymbol = dr("Symbol").ToString().Trim()
             If IsAStock(recSymbol) Or recSymbol = "CAccount" Then

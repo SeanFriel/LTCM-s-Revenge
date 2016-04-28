@@ -2,7 +2,9 @@
 
     Public Sub RecommendHedges()
         ResetRecommendations()
-        CalcFamilyDeltas()
+        CalcFamiliesAndRatio()
+        'CalcFamilyDeltas()
+        'CalcFamilyGammas()
         DisplayRecommendations()
         If HedgingToday() = False Then  ' first: are hedging today?
             Exit Sub
@@ -46,6 +48,7 @@
             Globals.Dashboard.PrintToAlgoLog(String.Format("{0}: {1} {2} {3} {4:C0} Delta: {5:N3}",
                 currentDate.ToShortDateString(),
                 AlgoTr.trType, AlgoTr.qty, AlgoTr.symbol, AlgoTr.totValue, AlgoTr.delta))
+
         End If
     End Sub
 
@@ -74,9 +77,23 @@
         End If
     End Sub
 
-    Public Sub CalcFamilyDeltas()
+    'Public Sub CalcFamilyDeltas()
+    '    For i As Integer = 0 To 11
+    '        RecArray(i).familyDelta = CalcFamilyDelta(RecArray(i).underlier)
+    '    Next
+    'End Sub
+
+    'Public Sub CalcFamilyGammas()
+    '    For i As Integer = 0 To 11
+    '        RecArray(i).familyGamma = CalcFamilyGamma(RecArray(i).underlier)
+    '    Next
+    'End Sub
+
+    Public Sub CalcFamiliesAndRatio()
         For i As Integer = 0 To 11
             RecArray(i).familyDelta = CalcFamilyDelta(RecArray(i).underlier)
+            RecArray(i).familyGamma = CalcFamilyGamma(RecArray(i).underlier)
+            RecArray(i).DeltaGammaRatio = CalcFamilyDelta(RecArray(i).underlier) / CalcFamilyGamma(RecArray(i).underlier)
         Next
     End Sub
 
